@@ -1,5 +1,5 @@
 elves = []
-with open('p1.txt', 'r') as f:
+with open('in.txt', 'r') as f:
     cal = 0
     for line in f.readlines():
         if line == '\n':
