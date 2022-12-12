@@ -3,28 +3,30 @@ start = None
 end = None
 with open('in.txt', 'r') as f:
     for line in f.readlines():
-        grid.append(list(line.strip()))
+        line = list(line.strip())
+        
+        # get start and end while reading
+        if 'S' or 'E' in line:
+            for i, c in enumerate(line):
+                if c == 'S':
+                    start = len(grid), i
+                    line[i] = 'a'
+                elif c == 'E':
+                    end = len(grid), i
+                    line[i] = 'z'
 
-# find S and E, can be done while reading
-for i in range(len(grid)):
-    for j in range(len(grid[0])):
-        if grid[i][j] == 'S':
-            start = (i,j)
-            grid[i][j] = 'a'
-        elif grid[i][j] == 'E':
-            end = (i,j)
-            grid[i][j] = 'z'
+        grid.append(line)
 
+print(grid, start, end)
 
-def is_valid(start, node):
-    i, j = node
-    x, y = start
-    try:
-        grid[i][j]
-    except:
-        return False
-    
-    return ord(grid[x][y]) - ord(grid[i][j]) >= -1
+def is_valid(frm, to):
+    i, j = frm
+    x, y = to
+
+    if 0 <= x < len(grid) and 0 <= y < len(grid[0]):
+        return ord(grid[i][j]) - ord(grid[x][y]) >= -1
+
+    return False
 
 def get_neighbors(node):
     i, j = node
@@ -37,32 +39,31 @@ def get_neighbors(node):
 
     valid = []
     for n in neighbors:
-        if is_valid(node, n):
+        if is_valid(frm=node, to=n):
             valid.append(n)
 
     return valid
 
-
-# start BFS, slow for actual input -- do smth else to faster traverse, A* may be?
-def find_path_bfs(s, e, grid, visited):
-    queue = [(s, [])]  # start point, empty path
+def find_path_bfs(s, e):
+    queue = [(s, [])]
+    visited = set()
 
     while len(queue) > 0:
-        print(len(visited))
+        # print(len(queue))
         node, path = queue.pop(0)
         path.append(node)
-        visited.add(node)
 
         if node == e:
             return path
 
-        adj_nodes = get_neighbors(node)
-        for item in adj_nodes:
+        for item in get_neighbors(node):
             if item not in visited:
+                visited.add(item)
                 queue.append((item, path[:]))
+
 
     return None  # no path found
 
-visited = set()
-path = find_path_bfs(start, end, grid, visited)
+path = find_path_bfs(start, end)
+print(path)
 print(len(path)-1)
